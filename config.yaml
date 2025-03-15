@@ -1,5 +1,5 @@
 repository: ../TrackNotes
-extensions: ['.rb', '.py', '.txt', '.yaml', '.yml', '.sh', '.md', '.toml']
+extensions: ['.rb', '.py', '.txt', '.yaml', '.yml', '.sh', '.md', '.toml', '.sql']
 db_path: .database/
 cache_dir: .cache/
 Tools:
