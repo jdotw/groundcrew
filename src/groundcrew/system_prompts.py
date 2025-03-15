@@ -19,7 +19,7 @@ Your task is to generate a concise summary of the above text and describe what t
 """
 
 SUMMARIZE_CODE_PROMPT = """
-Your task is to generate a concise summary of the above Python code. Keep your summary to 5 sentences or less. Include in your summary:
+Your task is to generate a concise summary of the above code. Keep your summary to 5 sentences or less. Include in your summary:
     - Dependencies
     - Important functions and clasess
     - Relevant information from comments and docstrings
