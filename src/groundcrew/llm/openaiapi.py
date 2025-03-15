@@ -237,6 +237,7 @@ def start_chat(model: str, client: openai.Client) -> Callable:
             )
             return message_from_api_response(response)
         except openai.APIError:
+            print('API error:', e)
             return UserMessage('There was an API error.  Please try again.')
 
     return chat_func
