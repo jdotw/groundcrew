@@ -144,6 +144,7 @@ class Agent:
 
         tool = self.tools[tool_selection]
         tool_args = self.extract_params(parsed_response)
+        print(f'Tool args: {tool_args}')
 
         expected_tool_args = inspect.signature(tool.obj).parameters
 
