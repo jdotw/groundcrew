@@ -42,7 +42,7 @@ def populate_db(descriptions: dict[str, str], collection: Collection) -> None:
     # Name is a unique identifier
     for name, info in descriptions.items():
 
-        # Choose the correct data type
+        # Choose the correct data type        
         data_type = 'file'
         if name.endswith(' (class)'):
             data_type = 'class'
@@ -52,6 +52,7 @@ def populate_db(descriptions: dict[str, str], collection: Collection) -> None:
             data_type = 'method'
 
         filepath = name.split('::')[0]
+        print(f'Adding {data_type}: {filepath}')
 
         # Create metadata
         metadata = {
@@ -98,9 +99,9 @@ def summarize_file(
 
         # Summarize entire Python file
         if filepath not in descriptions:
-            print('Generating summary for', filepath, '...')
+            print('Generating summary for python file', filepath, '...')
             prompt = filepath + '\n\n' + file_text + '\n\n'
-            prompt += sp.SUMMARIZE_CODE_PROMPT
+            prompt += sp.SUMMARIZE_PYTHON_CODE_PROMPT
             file_summary = llm(prompt)
             descriptions[filepath] = {
                 'text': file_text,
@@ -109,7 +110,7 @@ def summarize_file(
                 'summary': file_summary
             }
         else:
-            print('Loading summary for', filepath, '...')
+            print('Loading summary for python file', filepath, '...')
 
         # Extract classes and functions
         classes_dict = extract_python_from_file(file_text, CLASS_NODE_TYPE)
@@ -134,21 +135,46 @@ def summarize_file(
             key = filepath + '::' + name
 
             if key not in descriptions:
-                print('Generating summary for', key, '...')
+                print('Generating summary for python element', key, '...')
                 prompt = filepath + '\n\n' + info['text'] + '\n\n'
-                prompt += sp.SUMMARIZE_CODE_PROMPT
+                prompt += sp.SUMMARIZE_PYTHON_CODE_PROMPT
                 info['summary'] = llm(prompt)
                 descriptions[key] = info
             else:
                 info['summary'] = descriptions[key]['summary']
                 descriptions[key] = info
-                print('Loading summary for', key)
+                print('Loading summary for python element', key)
 
-    # Not a Python file
+    # Not a Python file, but is code
+    elif filepath.split('.')[-1] in {
+        'rb': True,
+    }:
+        key = filepath
+        if key not in descriptions:
+            print('Generating summary for code file', key, '...')
+            prompt = filepath + '\n\n' + file_text + '\n\n'
+            prompt += sp.SUMMARIZE_GENERIC_CODE_PROMPT
+            file_summary = llm(prompt)
+            descriptions[key] = {
+                'text': file_text,
+                'start_line': 1,
+                'end_line': len(file_text.split('\n')),
+                'summary': file_summary
+            }
+            print('\nSummary:')
+            print('=' * 50)
+            print(file_summary)
+            print('=' * 50, '\n')
+        else:
+            print('Loading summary for code file: ', key)
+            print(descriptions[key]['summary'])
+    
+    
+    # Not python or code
     else:
         key = filepath
         if key not in descriptions:
-            print('Generating summary for', key, '...')
+            print('Generating summary for generic file', key, '...')
             prompt = filepath + '\n\n' + file_text + '\n\n'
             prompt += sp.SUMMARIZE_FILE_PROMPT
             file_summary = llm(prompt)
@@ -159,7 +185,7 @@ def summarize_file(
                 'summary': file_summary
             }
         else:
-            print('Loading summary for', key)
+            print('Loading summary for generic file', key)
 
 
 @click.command()
